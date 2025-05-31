@@ -2,26 +2,90 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Book, ClipboardList, LayoutList, User, Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import {Bounce, toast, ToastContainer} from 'react-toastify';
 
 const LoginPage: React.FC = () => {
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
+    const [formData, setFormData] = useState({
+        username: "",
+        password: "",
+    });
     const navigate = useNavigate();
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setFormData({
+            ...formData,
+            [name]: value,
+        });
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
 
-        // Demo login logic - in production, this would call an authentication API
-        if (username && password.length >= 6) {
-            setTimeout(() => {
-                setLoading(false);
-                navigate('/dashboard');
-            }, 1000);
-        } else {
+        if (!formData.username || !formData.password) {
+            toast.error('Bitte füllen sie alle Felder aus.', {
+                position: "top-right",
+                autoClose: 7000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+                transition: Bounce,
+            });
             setLoading(false);
+            return;
         }
+
+        try{
+            const response = await fetch('http://localhost:5000/login', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    username: formData.username,
+                    password: formData.password
+                },
+            });
+
+            const result = await response.json();
+
+            if (response.status === 200) {
+                localStorage.setItem('jwt', result.token);
+                return navigate('/dashboard');
+            } else if (result.error === "INVALID_DATA") {
+                toast.error('Benutzername oder Passwort nicht korrekt. Bitte prüfen Sie Ihre Eingabe.', {
+                    position: "top-right",
+                    autoClose: 7000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "light",
+                    transition: Bounce,
+                });
+            }
+
+        } catch (error) {
+            console.log(error);
+            toast.error('Bitte füllen sie alle Felder aus.', {
+                position: "top-right",
+                autoClose: 7000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+                theme: "light",
+                transition: Bounce,
+            });
+            setLoading(false);
+            return;
+        }
+
     };
 
     return (
@@ -90,7 +154,7 @@ const LoginPage: React.FC = () => {
                         animate={{opacity: 1}}
                         transition={{delay: 0.6, duration: 0.5}}
                     >
-                        © 2025 Azubi Portal. Created by{' '}
+                        © 2025 Heftly. Created by{' '}
                         <a
                             href="https://www.linkedin.com/in/maximilian-wolf-89532a28b/"
                             target="_blank"
@@ -138,8 +202,8 @@ const LoginPage: React.FC = () => {
                                     <input
                                         id="username"
                                         type="text"
-                                        value={username}
-                                        onChange={(e) => setUsername(e.target.value)}
+                                        value={formData.username}
+                                        onChange={handleChange}
                                         placeholder="max.mustermann"
                                         className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm transition-colors"
                                     />
@@ -157,8 +221,8 @@ const LoginPage: React.FC = () => {
                                     <input
                                         id="password"
                                         type="password"
-                                        value={password}
-                                        onChange={(e) => setPassword(e.target.value)}
+                                        value={formData.password}
+                                        onChange={handleChange}
                                         placeholder="••••••••"
                                         className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm transition-colors"
                                     />
@@ -176,6 +240,7 @@ const LoginPage: React.FC = () => {
                     </motion.div>
                 </div>
             </motion.div>
+            <ToastContainer />
         </div>
     );
 };
