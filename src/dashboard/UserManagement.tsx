@@ -98,28 +98,54 @@ const UserManagement: React.FC = () => {
             return;
         }
 
-        const id = (users.length + 1).toString();
-        setUsers([...users, { ...newUser, id } as User]);
-        setIsCreateModalOpen(false);
-        setNewUser({
-            name: '',
-            role: 'trainee',
-            department: '',
-            startDate: '',
-            password: '',
-            assignedTrainer: ''
-        });
-        toast.error('Benutzer erfolgreich erstellt!', {
-            position: "top-right",
-            autoClose: 7000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "light",
-            transition: Bounce,
-        });
+        const CreateUser  = async () => {
+            const id = (users.length + 1).toString();
+            setNewUser({ ...newUser, id: id })
+            try {
+                const response = await fetch("http://localhost:5000/user/create", {
+                    method: 'POST',
+                    headers: {
+                        "Content-Type": "application/json",
+                        "userdata": JSON.stringify(newUser),
+                    }
+                });
+
+                if (!response.ok) {
+                    console.log(response);
+                    return;
+                }
+
+                const result = await response.json();
+
+                setIsCreateModalOpen(false);
+                setUsers(prevUsers => [...prevUsers, result.newUser]);
+                setNewUser({
+                    name: '',
+                    role: 'trainee',
+                    department: '',
+                    startDate: '',
+                    password: '',
+                    assignedTrainer: ''
+                });
+                toast.success('Benutzer erfolgreich erstellt!', {
+                    position: "top-right",
+                    autoClose: 7000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "light",
+                    transition: Bounce,
+                });
+
+
+            } catch (error) {
+                console.error(error);
+            }
+        };
+
+        CreateUser();
     };
 
     const handleDeleteUser = (id: string) => {
@@ -136,7 +162,7 @@ const UserManagement: React.FC = () => {
                     return;
                 }
 
-                toast.error('Benutzer erfolgreich gelöscht!', {
+                toast.success('Benutzer erfolgreich gelöscht!', {
                     position: "top-right",
                     autoClose: 7000,
                     hideProgressBar: false,
@@ -322,20 +348,11 @@ const UserManagement: React.FC = () => {
                         leaveFrom="opacity-100"
                         leaveTo="opacity-0"
                     >
-                        <div className="fixed inset-0 bg-black bg-opacity-25" />
+                        <div className="fixed inset-0 backdrop-blur-sm bg-white/10"/>
                     </Transition.Child>
 
                     <div className="fixed inset-0 overflow-y-auto">
                         <div className="flex min-h-full items-center justify-center p-4 text-center">
-                            <Transition.Child
-                                as={Fragment}
-                                enter="ease-out duration-300"
-                                enterFrom="opacity-0 scale-95"
-                                enterTo="opacity-100 scale-100"
-                                leave="ease-in duration-200"
-                                leaveFrom="opacity-100 scale-100"
-                                leaveTo="opacity-0 scale-95"
-                            >
                                 <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
                                     <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900">
                                         Neuen Benutzer erstellen
@@ -443,7 +460,6 @@ const UserManagement: React.FC = () => {
                                         </button>
                                     </div>
                                 </Dialog.Panel>
-                            </Transition.Child>
                         </div>
                     </div>
                 </Dialog>

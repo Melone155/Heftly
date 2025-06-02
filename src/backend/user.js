@@ -2,6 +2,7 @@ import express from 'express';
 import {MongoClient, ObjectId} from 'mongodb';
 import {uri} from './dbconnection.js';
 import dotenv from 'dotenv';
+import crypto from "crypto";
 
 dotenv.config();
 
@@ -9,6 +10,8 @@ const router = express.Router();
 const client = new MongoClient(uri);
 const db = client.db("Heftly");
 const UserCollection = db.collection("users");
+
+const Encrypt_SECRET = process.env.ENCRYPT_SECRET;
 
 router.get("/", async (req, res) => {
     try {
@@ -38,5 +41,46 @@ router.delete("/delete/:id", async (req, res) => {
     }
 });
 
+router.post("/create", async (req, res) => {
+    try {
+        const userDataRaw = req.headers["userdata"];
+
+        if (!userDataRaw) {
+            return res.status(400).json({ message: "Keine Benutzerdaten erhalten." });
+        }
+
+        let userData;
+
+        try {
+            userData = JSON.parse(userDataRaw);
+        } catch (e) {
+            return res.status(400).json({ message: "Ungültiges JSON-Format im Header." });
+        }
+
+        const secretKey = crypto.createHash('sha256').update(Encrypt_SECRET).digest();
+
+        function encrypt(text) {
+            const cipher = crypto.createCipheriv('aes-256-ecb', secretKey, null); // IV = null
+            let encrypted = cipher.update(text, 'utf8', 'hex');
+            encrypted += cipher.final('hex');
+            return encrypted;
+        }
+
+        const result = await UserCollection.insertOne({
+            name: userData.name,
+            role: userData.role,
+            department: userData.department,
+            password: encrypt(userData.password),
+            assignedTrainer: userData.assignedTrainer || null,
+            createdAt: new Date(),
+        });
+
+        res.status(201).json({ message: "Benutzer erstellt", newUser: { _id: result.insertedId, ...userData } });
+
+    } catch (error) {
+        console.error("Fehler beim Erstellen des Benutzers:", error);
+        res.status(500).json({ message: "Interner Serverfehler" });
+    }
+});
 
 export default router;
