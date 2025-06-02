@@ -124,17 +124,36 @@ const UserManagement: React.FC = () => {
 
     const handleDeleteUser = (id: string) => {
         setUsers(users.filter(user => user.id !== id));
-        toast.error('Benutzer erfolgreich gelöscht!', {
-            position: "top-right",
-            autoClose: 7000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: undefined,
-            theme: "light",
-            transition: Bounce,
-        });
+
+        const Deletuser  = async () => {
+            try {
+                const response = await fetch(`http://localhost:5000/user/delete/${id}`, {
+                    method: 'DELETE',
+                });
+
+                if (!response.ok) {
+                    console.log(response);
+                    return;
+                }
+
+                toast.error('Benutzer erfolgreich gelöscht!', {
+                    position: "top-right",
+                    autoClose: 7000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    progress: undefined,
+                    theme: "light",
+                    transition: Bounce,
+                });
+
+            } catch (error) {
+                console.error(error);
+            }
+        };
+
+        Deletuser();
     };
 
     const getTrainers = () => {
