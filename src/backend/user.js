@@ -67,6 +67,7 @@ router.post("/create", async (req, res) => {
         }
 
         const result = await UserCollection.insertOne({
+            id: userData.id,
             name: userData.name,
             role: userData.role,
             department: userData.department,

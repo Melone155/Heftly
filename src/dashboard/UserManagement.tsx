@@ -100,13 +100,13 @@ const UserManagement: React.FC = () => {
 
         const CreateUser  = async () => {
             const id = (users.length + 1).toString();
-            setNewUser({ ...newUser, id: id })
+            const userToCreate = { ...newUser, id };
             try {
                 const response = await fetch("http://localhost:5000/user/create", {
                     method: 'POST',
                     headers: {
                         "Content-Type": "application/json",
-                        "userdata": JSON.stringify(newUser),
+                        "userdata": JSON.stringify(userToCreate),
                     }
                 });
 
