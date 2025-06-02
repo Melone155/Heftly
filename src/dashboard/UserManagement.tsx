@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from 'react';
+import React, {Fragment, useEffect, useState} from 'react';
 import { Book, LogOut, UserPlus, Trash2, PencilLine, Shield, GraduationCap, UserCog, Search } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Dialog, Transition } from '@headlessui/react';
@@ -16,18 +16,17 @@ interface User {
     password?: string;
 }
 
+/*
+ { id: '1', name: 'Max Mustermann', role: 'trainee', department: 'IT', startDate: '2023-09-01', assignedTrainer: '2' },
+        { id: '2', name: 'Anna Schmidt', role: 'trainer', department: 'IT' },
+        { id: '3', name: 'Thomas Weber', role: 'admin' },
+ */
+
 const UserManagement: React.FC = () => {
     const navigate = useNavigate();
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
-    const [users, setUsers] = useState<User[]>([
-        { id: '1', name: 'Max Mustermann', role: 'trainee', department: 'IT', startDate: '2023-09-01', assignedTrainer: '2' },
-        { id: '2', name: 'Anna Schmidt', role: 'trainer', department: 'IT' },
-        { id: '3', name: 'Thomas Weber', role: 'admin' },
-        { id: '4', name: 'Maria Müller', role: 'trainer', department: 'Marketing' },
-        { id: '5', name: 'Klaus Fischer', role: 'trainer', department: 'IT' },
-        { id: '6', name: 'Sarah Wagner', role: 'trainer', department: 'HR' }
-    ]);
+    const [users, setUsers] = useState<User[]>([]);
     const [newUser, setNewUser] = useState<Partial<User>>({
         name: '',
         role: 'trainee',
@@ -36,6 +35,33 @@ const UserManagement: React.FC = () => {
         password: '',
         assignedTrainer: ''
     });
+
+    useEffect(() => {
+        const ReadData  = async () => {
+            try {
+                const response = await fetch("http://localhost:5000/user", {
+                    method: 'GET',
+                    headers: {
+                        "Content-Type": "application/json",
+                    }
+                });
+
+                if (!response.ok) {
+                    console.log(response);
+                    return;
+                }
+
+                const result = await response.json();
+                setUsers(result);
+
+            } catch (error) {
+                console.error(error);
+            }
+        };
+
+        ReadData();
+    }, []);
+
 
     const handleLogout = () => {
         navigate('/');

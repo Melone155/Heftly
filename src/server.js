@@ -2,6 +2,8 @@ import cors from 'cors';
 import express from "express";
 import { connectDB } from "./backend/dbconnection.js";
 import loginRouter from './backend/login.js';
+import userRouter from './backend/user.js';
+
 
 const app = express();
 const PORT = 5000;
@@ -26,5 +28,6 @@ app.listen(PORT, () => {
 await connectDB();
 
 app.use('/login', loginRouter);
+app.use('/user', userRouter);
 
 
