@@ -25,6 +25,7 @@ interface User {
 const UserManagement: React.FC = () => {
     const navigate = useNavigate();
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState('');
     const [users, setUsers] = useState<User[]>([]);
     const [newUser, setNewUser] = useState<Partial<User>>({
@@ -219,6 +220,11 @@ const UserManagement: React.FC = () => {
         user.department?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+    const handleOpenEditModal = (user: User) => {
+        setNewUser(user);
+        setIsEditModalOpen(true);
+    };
+
     return (
         <div className="min-h-screen bg-gray-50">
             <header className="bg-white shadow-sm">
@@ -318,7 +324,7 @@ const UserManagement: React.FC = () => {
                                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                         <button
                                             className="text-blue-600 hover:text-blue-900 mr-4"
-                                            //onClick={() => TODO: Create Edit
+                                            onClick={() => handleOpenEditModal(user)}
                                         >
                                             <PencilLine className="h-5 w-5" />
                                         </button>
@@ -460,6 +466,133 @@ const UserManagement: React.FC = () => {
                                         </button>
                                     </div>
                                 </Dialog.Panel>
+                        </div>
+                    </div>
+                </Dialog>
+            </Transition>
+            <Transition appear show={isEditModalOpen} as={Fragment}>
+                <Dialog as="div" className="relative z-10" onClose={() => setIsEditModalOpen(false)}>
+                    <Transition.Child
+                        as={Fragment}
+                        enter="ease-out duration-300"
+                        enterFrom="opacity-0"
+                        enterTo="opacity-100"
+                        leave="ease-in duration-200"
+                        leaveFrom="opacity-100"
+                        leaveTo="opacity-0"
+                    >
+                        <div className="fixed inset-0 backdrop-blur-sm bg-white/10"/>
+                    </Transition.Child>
+
+                    <div className="fixed inset-0 overflow-y-auto">
+                        <div className="flex min-h-full items-center justify-center p-4 text-center">
+                            <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                                <Dialog.Title as="h3" className="text-lg font-medium leading-6 text-gray-900">
+                                   Benutzer bearbeiten
+                                </Dialog.Title>
+                                <div className="mt-4 space-y-4">
+                                    <div>
+                                        <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                                            Name *
+                                        </label>
+                                        <input
+                                            type="text"
+                                            id="name"
+                                            value={newUser.name}
+                                            onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
+                                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                                            Passwort
+                                        </label>
+                                        <input
+                                            type="password"
+                                            id="password"
+                                            value={newUser.password}
+                                            onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
+                                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label htmlFor="role" className="block text-sm font-medium text-gray-700">
+                                            Rolle *
+                                        </label>
+                                        <select
+                                            id="role"
+                                            value={newUser.role}
+                                            onChange={(e) => setNewUser({ ...newUser, role: e.target.value as Role })}
+                                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                        >
+                                            <option value="trainee">Auszubildender</option>
+                                            <option value="trainer">Ausbilder</option>
+                                            <option value="admin">Administrator</option>
+                                        </select>
+                                    </div>
+                                    {newUser.role === 'trainee' && (
+                                        <div>
+                                            <label htmlFor="trainer" className="block text-sm font-medium text-gray-700">
+                                                Ausbilder *
+                                            </label>
+                                            <select
+                                                id="trainer"
+                                                value={newUser.assignedTrainer}
+                                                onChange={(e) => setNewUser({ ...newUser, assignedTrainer: e.target.value })}
+                                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                            >
+                                                <option value="">Ausbilder auswählen</option>
+                                                {getTrainers().map(trainer => (
+                                                    <option key={trainer.id} value={trainer.id}>
+                                                        {trainer.name} ({trainer.department || 'Keine Abteilung'})
+                                                    </option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                    )}
+                                    <div>
+                                        <label htmlFor="department" className="block text-sm font-medium text-gray-700">
+                                            Abteilung
+                                        </label>
+                                        <input
+                                            type="text"
+                                            id="department"
+                                            value={newUser.department}
+                                            onChange={(e) => setNewUser({ ...newUser, department: e.target.value })}
+                                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label htmlFor="startDate" className="block text-sm font-medium text-gray-700">
+                                            Startdatum
+                                        </label>
+                                        <input
+                                            type="date"
+                                            id="startDate"
+                                            value={newUser.startDate}
+                                            onChange={(e) => setNewUser({ ...newUser, startDate: e.target.value })}
+                                            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="mt-6 flex justify-end space-x-3">
+                                    <button
+                                        type="button"
+                                        className="inline-flex justify-center px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 border border-transparent rounded-md hover:bg-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
+                                        onClick={() => setIsEditModalOpen(false)}
+                                    >
+                                        Abbrechen
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="inline-flex justify-center px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
+                                        onClick={handleCreateUser}
+                                    >
+                                        Ändern
+                                    </button>
+                                </div>
+                            </Dialog.Panel>
                         </div>
                     </div>
                 </Dialog>
