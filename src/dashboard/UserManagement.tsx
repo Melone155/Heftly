@@ -225,6 +225,30 @@ const UserManagement: React.FC = () => {
         setIsEditModalOpen(true);
     };
 
+    const  handleEdit = () =>{
+        const Edituser  = async () => {
+            try {
+                const response = await fetch(`http://localhost:5000/user/${newUser.id}`, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(newUser),
+                });
+
+                if (!response.ok) {
+                    console.error("Fehler beim Aktualisieren");
+                    return;
+                }
+
+                setIsEditModalOpen(false);
+            } catch (error) {
+                console.error(error);
+            }
+        }
+        Edituser();
+    }
+
     return (
         <div className="min-h-screen bg-gray-50">
             <header className="bg-white shadow-sm">
@@ -587,7 +611,7 @@ const UserManagement: React.FC = () => {
                                     <button
                                         type="button"
                                         className="inline-flex justify-center px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
-                                        onClick={handleCreateUser}
+                                        onClick={handleEdit}
                                     >
                                         Ändern
                                     </button>

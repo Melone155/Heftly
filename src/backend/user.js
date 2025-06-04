@@ -84,4 +84,25 @@ router.post("/create", async (req, res) => {
     }
 });
 
+router.put("/:id", async (req, res) => {
+    const userId = req.params.id;
+    const updatedUser = req.body;
+
+    try {
+        const result = await UserCollection.updateOne(
+            { id: userId },
+            { $set: updatedUser }
+        );
+
+        if (result.matchedCount === 0) {
+            return res.status(404).json({ message: "Benutzer nicht gefunden" });
+        }
+
+        res.json({ message: "Benutzer aktualisiert" });
+    } catch (error) {
+        console.error("Fehler beim Aktualisieren des Benutzers:", error);
+        res.status(500).json({ error: "Interner Serverfehler" });
+    }
+});
+
 export default router;
