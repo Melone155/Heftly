@@ -71,7 +71,7 @@ const LoginPage: React.FC = () => {
 
         } catch (error) {
             console.log(error);
-            toast.error('Bitte füllen sie alle Felder aus.', {
+            toast.error('Es ist ein Unerwarteter Fehler aufgetreten bitte Kontaktieren sie denn System Admin', {
                 position: "top-right",
                 autoClose: 7000,
                 hideProgressBar: false,
@@ -196,17 +196,20 @@ const LoginPage: React.FC = () => {
                                     Benutzername
                                 </label>
                                 <div className="relative">
-                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                        <User className="h-5 w-5 text-gray-400" />
+                                    <div
+                                        className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <User className="h-5 w-5 text-gray-400"/>
                                     </div>
                                     <input
                                         id="username"
+                                        name="username"
                                         type="text"
                                         value={formData.username}
                                         onChange={handleChange}
                                         placeholder="max.mustermann"
                                         className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm transition-colors"
                                     />
+
                                 </div>
                             </div>
 
@@ -215,12 +218,13 @@ const LoginPage: React.FC = () => {
                                     Passwort
                                 </label>
                                 <div className="relative">
-                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <Lock className="h-5 w-5 text-gray-400" />
                                     </div>
                                     <input
                                         id="password"
                                         type="password"
+                                        name="password"
                                         value={formData.password}
                                         onChange={handleChange}
                                         placeholder="••••••••"
