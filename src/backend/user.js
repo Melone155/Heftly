@@ -57,6 +57,18 @@ router.post("/create", async (req, res) => {
             return res.status(400).json({ message: "Ungültiges JSON-Format im Header." });
         }
 
+        try {
+            const existingUser = await UserCollection.findOne({ name: userData.name });
+
+            if (existingUser) {
+                return res.status(200).json({ exists: true });
+            }
+
+        } catch (error) {
+            console.error("Fehler beim Überprüfen des Namens:", error);
+            return res.status(500).json({ error: "Interner Serverfehler" });
+        }
+
         const secretKey = crypto.createHash('sha256').update(Encrypt_SECRET).digest();
 
         function encrypt(text) {
@@ -66,14 +78,17 @@ router.post("/create", async (req, res) => {
             return encrypted;
         }
 
+        const now = new Date();
+        const formattedDate = `${String(now.getDate()).padStart(2, '0')}.${String(now.getMonth() + 1).padStart(2, '0')}.${now.getFullYear()}`;
+
         const result = await UserCollection.insertOne({
             id: userData.id,
             name: userData.name,
             role: userData.role,
-            department: userData.department,
             password: encrypt(userData.password),
+            department: userData.department,
             assignedTrainer: userData.assignedTrainer || null,
-            createdAt: new Date(),
+            createdAt: formattedDate,
         });
 
         res.status(201).json({ message: "Benutzer erstellt", newUser: { _id: result.insertedId, ...userData } });
