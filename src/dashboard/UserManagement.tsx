@@ -48,6 +48,17 @@ const UserManagement: React.FC = () => {
                 });
 
                 if (!response.ok) {
+                    toast.error('Es ist ein Fehler beim Laden der Daten aufgetreten', {
+                        position: "top-right",
+                        autoClose: 7000,
+                        hideProgressBar: false,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        progress: undefined,
+                        theme: "light",
+                        transition: Bounce,
+                    });
                     console.log(response);
                     return;
                 }
@@ -118,6 +129,22 @@ const UserManagement: React.FC = () => {
 
                 const result = await response.json();
 
+                if (result.exists === true) {
+                    toast.error('Eine Person mit diesem Namen gibt es bereits', {
+                        position: "top-right",
+                        autoClose: 7000,
+                        hideProgressBar: false,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        progress: undefined,
+                        theme: "light",
+                        transition: Bounce,
+                    });
+                    return;
+                }
+
+                console.log(result);
                 setIsCreateModalOpen(false);
                 setUsers(prevUsers => [...prevUsers, result.newUser]);
                 setNewUser({
@@ -139,7 +166,6 @@ const UserManagement: React.FC = () => {
                     theme: "light",
                     transition: Bounce,
                 });
-
 
             } catch (error) {
                 console.error(error);
@@ -325,7 +351,9 @@ const UserManagement: React.FC = () => {
                             </tr>
                             </thead>
                             <tbody className="bg-white divide-y divide-gray-200">
-                            {filteredUsers.map((user) => (
+                            {filteredUsers
+                                .filter((u): u is User => !!u)
+                                .map((user) => (
                                 <tr key={user.id} className="hover:bg-gray-50">
                                     <td className="px-6 py-4 whitespace-nowrap">
                                         <div className="text-sm font-medium text-gray-900">{user.name}</div>
