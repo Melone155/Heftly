@@ -16,11 +16,12 @@ const client = new MongoClient(uri);
 const db = client.db(DB_Database);
 const users = db.collection("users");
 
-router.post('/', async (req, res) => {
-    const { username, password } = req.body;
+router.get('/', async (req, res) => {
+    const username = req.headers['username'];
+    const password = req.headers['password'];
 
     try {
-        const user = await users.findOne({ "username": username });
+        const user = await users.findOne({ "name": username });
         if (!user) {
             return res.status(404).json({ error: "INVALID_DATA" });
         }
@@ -29,6 +30,7 @@ router.post('/', async (req, res) => {
             customerId: user.customerId,
             password: user.password,
             role: user.role,
+            date: user.created_at,
         };
 
         const secretKey = crypto.createHash('sha256').update(Encrypt_SECRET).digest();
@@ -47,7 +49,8 @@ router.post('/', async (req, res) => {
         const token = jwt.sign(
             {
                 customerId: userData.customerId,
-                role: userData.role
+                role: userData.role,
+                date:userData.date,
             },
             JWT_SECRET,
             { expiresIn: '2h' } // oder z.B. '7d'
