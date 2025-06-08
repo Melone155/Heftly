@@ -17,7 +17,17 @@ const Dashboard: React.FC = () => {
         navigate('/');
     };
 
-    // Generate weeks for the current year
+    const getMonthsOfYear = () => {
+        const currentYear = new Date().getFullYear();
+        const months: string[] = [];
+
+        for (let month = 1; month <= 12; month++) {
+            months.push(`${month}/${currentYear}`);
+        }
+
+        return months;
+    };
+
     const getWeeksInYear = () => {
         const weeks = [];
         const currentYear = new Date().getFullYear();
@@ -62,9 +72,9 @@ const Dashboard: React.FC = () => {
                                 onChange={(e) => setSelectedWeek(e.target.value)}
                                 className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
                             >
-                                {getWeeksInYear().map((week) => (
-                                    <option key={week} value={week}>
-                                        KW {week.split('-W')[1]}/{week.split('-')[0]}
+                                {getMonthsOfYear().map((month) => (
+                                    <option key={month} value={month}>
+                                        {month}
                                     </option>
                                 ))}
                             </select>
