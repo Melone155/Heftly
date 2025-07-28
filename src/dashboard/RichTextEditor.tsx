@@ -185,31 +185,6 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
                     </ToolbarButton>
                 </div>
 
-                {/* Headings */}
-                <div className="flex gap-1 border-r border-gray-300 pr-2 mr-2">
-                    <select
-                        onChange={(e) => {
-                            const level = parseInt(e.target.value);
-                            if (level === 0) {
-                                editor.chain().focus().setParagraph().run();
-                            } else {
-                                editor.chain().focus().toggleHeading({ level: level as 1 | 2 | 3 }).run();
-                            }
-                        }}
-                        value={
-                            editor.isActive('heading', { level: 1 }) ? 1 :
-                                editor.isActive('heading', { level: 2 }) ? 2 :
-                                    editor.isActive('heading', { level: 3 }) ? 3 : 0
-                        }
-                        className="px-2 py-1 text-sm border border-gray-300 rounded"
-                    >
-                        <option value={0}>Normal</option>
-                        <option value={1}>Überschrift 1</option>
-                        <option value={2}>Überschrift 2</option>
-                        <option value={3}>Überschrift 3</option>
-                    </select>
-                </div>
-
                 {/* Lists */}
                 <div className="flex gap-1 border-r border-gray-300 pr-2 mr-2">
                     <ToolbarButton
@@ -265,29 +240,6 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
                     >
                         <AlignRight className="w-4 h-4" />
                     </ToolbarButton>
-                </div>
-
-                {/* Colors */}
-                <div className="flex gap-1 border-r border-gray-300 pr-2 mr-2">
-                    <div className="flex items-center gap-1">
-                        <Palette className="w-4 h-4 text-gray-600" />
-                        <input
-                            type="color"
-                            onInput={(e) => editor.chain().focus().setColor((e.target as HTMLInputElement).value).run()}
-                            value={editor.getAttributes('textStyle').color || '#000000'}
-                            className="w-6 h-6 border border-gray-300 rounded cursor-pointer"
-                            title="Textfarbe"
-                        />
-                    </div>
-                    <div className="flex items-center gap-1">
-                        <Highlighter className="w-4 h-4 text-gray-600" />
-                        <input
-                            type="color"
-                            onInput={(e) => editor.chain().focus().setHighlight({ color: (e.target as HTMLInputElement).value }).run()}
-                            className="w-6 h-6 border border-gray-300 rounded cursor-pointer"
-                            title="Hintergrundfarbe"
-                        />
-                    </div>
                 </div>
 
                 {/* Media */}
