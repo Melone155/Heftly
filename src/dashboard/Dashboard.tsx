@@ -1,10 +1,14 @@
 import React, { useState } from 'react';
-import { Book, LogOut, ClipboardList, GraduationCap, Building2, Calendar } from 'lucide-react';
+import { Book, LogOut, Building2, Calendar, ClipboardList, GraduationCap } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import RichTextEditor from './RichTextEditor';
 
 const Dashboard: React.FC = () => {
     const navigate = useNavigate();
     const [selectedWeek, setSelectedWeek] = useState<string>(getCurrentWeek());
+    const [betrieblicheTaetigkeiten, setBetrieblicheTaetigkeiten] = useState('');
+    const [berufsschule, setBerufsschule] = useState('');
+    const [unterweisungen, setUnterweisungen] = useState('');
 
     function getCurrentWeek(): string {
         const now = new Date();
@@ -112,10 +116,12 @@ const Dashboard: React.FC = () => {
                                 <h3 className="text-lg font-medium text-gray-900">Betriebliche Tätigkeiten</h3>
                             </div>
                             <div className="space-y-4">
-                <textarea
-                    className="w-full h-32 p-3 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="Beschreibe hier deine betrieblichen Tätigkeiten dieser Woche..."
-                />
+                                <RichTextEditor
+                                    value={betrieblicheTaetigkeiten}
+                                    onChange={setBetrieblicheTaetigkeiten}
+                                    placeholder="Beschreibe hier die betrieblichen Tätigkeiten dieser Woche..."
+                                    className="min-h-[300px]"
+                                />
                             </div>
                         </div>
                     </div>
@@ -127,10 +133,12 @@ const Dashboard: React.FC = () => {
                                 <h3 className="text-lg font-medium text-gray-900">Unterweisungen</h3>
                             </div>
                             <div className="space-y-4">
-                <textarea
-                    className="w-full h-32 p-3 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="Beschreibe hier die Unterweisungen dieser Woche..."
-                />
+                                <RichTextEditor
+                                    value={unterweisungen}
+                                    onChange={setUnterweisungen}
+                                    placeholder="Beschreibe hier die Unterweisungen dieser Woche..."
+                                    className="min-h-[300px]"
+                                />
                             </div>
                         </div>
                     </div>
@@ -142,10 +150,12 @@ const Dashboard: React.FC = () => {
                                 <h3 className="text-lg font-medium text-gray-900">Berufsschule</h3>
                             </div>
                             <div className="space-y-4">
-                <textarea
-                    className="w-full h-32 p-3 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="Beschreibe hier die Lerninhalte aus der Berufsschule..."
-                />
+                                <RichTextEditor
+                                    value={berufsschule}
+                                    onChange={setBerufsschule}
+                                    placeholder="Beschreibe hier die Unterweisungen dieser Woche..."
+                                    className="min-h-[300px]"
+                                />
                             </div>
                         </div>
                     </div>
