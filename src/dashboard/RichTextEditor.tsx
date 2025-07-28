@@ -25,8 +25,6 @@ import {
     AlignLeft,
     AlignCenter,
     AlignRight,
-    Palette,
-    Highlighter,
     Code,
     FileCode
 } from 'lucide-react';
