@@ -1,21 +1,32 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import { Book, LogOut, Building2, Calendar, ClipboardList, GraduationCap } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import RichTextEditor from './RichTextEditor';
+import { format, startOfWeek, addWeeks } from 'date-fns';
+import { de } from 'date-fns/locale';
+import { getISOWeek } from 'date-fns';
+
+type WeekEntry = {
+    kw: number;
+    range: string;
+};
 
 const Dashboard: React.FC = () => {
     const navigate = useNavigate();
-    const [selectedWeek, setSelectedWeek] = useState<string>(getCurrentWeek());
+    const [selectedWeek, setSelectedWeek] = useState<WeekEntry | null>(null);
+    const [selectedMonth, setSelectedMonth] = useState<string>("1/2025");
     const [betrieblicheTaetigkeiten, setBetrieblicheTaetigkeiten] = useState('');
     const [berufsschule, setBerufsschule] = useState('');
     const [unterweisungen, setUnterweisungen] = useState('');
+    const [monthStr, yearStr] = selectedMonth.split("/");
+    const month = Number(monthStr);
+    const year = Number(yearStr);
+    const [weeks, setWeeks] = useState<WeekEntry[]>([]);
 
-    function getCurrentWeek(): string {
-        const now = new Date();
-        const startOfYear = new Date(now.getFullYear(), 0, 1);
-        const weekNumber = Math.ceil(((now.getTime() - startOfYear.getTime()) / 86400000 + startOfYear.getDay() + 1) / 7);
-        return `${now.getFullYear()}-W${weekNumber.toString().padStart(2, '0')}`;
-    }
+    useEffect(() => {
+        const newWeeks = getWeeksInMonth(year, month);
+        setWeeks(newWeeks);
+    }, [month, selectedMonth, year]);
 
     const handleLogout = () => {
         navigate('/');
@@ -32,14 +43,31 @@ const Dashboard: React.FC = () => {
         return months;
     };
 
-    const getWeeksInYear = () => {
-        const weeks = [];
-        const currentYear = new Date().getFullYear();
-        for (let week = 1; week <= 52; week++) {
-            weeks.push(`${currentYear}-W${week.toString().padStart(2, '0')}`);
+    function getWeeksInMonth(year: number, month: number) {
+        const result = [];
+
+        const firstOfMonth = new Date(year, month - 1, 1);
+        const lastOfMonth = new Date(year, month, 0);
+
+        let current = startOfWeek(firstOfMonth, { weekStartsOn: 1 });
+
+        while (current <= lastOfMonth) {
+            const monday = startOfWeek(current, { weekStartsOn: 1 });
+            const friday = new Date(monday);
+            friday.setDate(monday.getDate() + 4);
+
+            if (monday.getMonth() === (month - 1)) {
+                result.push({
+                    kw: getISOWeek(monday),
+                    range: `${format(monday, 'dd.MM', { locale: de })} - ${format(friday, 'dd.MM', { locale: de })}`
+                });
+            }
+
+            current = addWeeks(current, 1);
         }
-        return weeks;
-    };
+
+        return result;
+    }
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -72,8 +100,12 @@ const Dashboard: React.FC = () => {
                         <div className="flex items-center">
                             <Calendar className="h-5 w-5 text-gray-400 mr-2" />
                             <select
-                                value={selectedWeek}
-                                onChange={(e) => setSelectedWeek(e.target.value)}
+                                value={selectedMonth}
+                                onChange={(e) => {
+                                    setSelectedMonth(e.target.value);
+                                    const newWeeks = getWeeksInMonth(year, month);
+                                    setWeeks(newWeeks);
+                                }}
                                 className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
                             >
                                 {getMonthsOfYear().map((month) => (
@@ -90,18 +122,18 @@ const Dashboard: React.FC = () => {
                     <div className="p-6">
                         <h3 className="text-lg font-medium text-gray-900 mb-4">Wochenübersicht</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                            {getWeeksInYear().slice(0, 4).map((week) => (
+                            {weeks.slice(0, 4).map((week) => (
                                 <button
-                                    key={week}
+                                    key={week.kw}
                                     onClick={() => setSelectedWeek(week)}
                                     className={`p-4 rounded-lg border ${
-                                        selectedWeek === week
+                                        selectedWeek?.kw === week.kw
                                             ? 'border-blue-500 bg-blue-50'
                                             : 'border-gray-200 hover:border-blue-300'
                                     }`}
                                 >
-                                    <div className="font-medium">KW {week.split('-W')[1]}</div>
-                                    <div className="text-sm text-gray-500">{week.split('-')[0]}</div>
+                                    <div className="font-medium">KW {week.kw}</div>
+                                    <div className="text-sm text-gray-500">{week.range}</div>
                                 </button>
                             ))}
                         </div>
