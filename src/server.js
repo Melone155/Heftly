@@ -15,8 +15,6 @@ const corsOptions = {
     allowedHeaders: '*',
 };
 
-app.use('/payment/webhook', express.raw({ type: 'application/json' }));
-
 app.use(cors(corsOptions))
 
 app.use(express.json());
