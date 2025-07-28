@@ -7,13 +7,17 @@ import TextAlign from '@tiptap/extension-text-align';
 import { TextStyle } from '@tiptap/extension-text-style';
 import Color from '@tiptap/extension-color';
 import Highlight from '@tiptap/extension-highlight';
+import CodeBlockLowlight from '@tiptap/extension-code-block-lowlight';
+import { common, createLowlight } from 'lowlight';
+
+const lowlight = createLowlight(common);
 import {
     Bold,
     Italic,
+    UnderlineIcon,
     Strikethrough,
     List,
     ListOrdered,
-    Quote,
     Undo,
     Redo,
     Link as LinkIcon,
@@ -22,7 +26,9 @@ import {
     AlignCenter,
     AlignRight,
     Palette,
-    Highlighter
+    Highlighter,
+    Code,
+    FileCode
 } from 'lucide-react';
 
 interface RichTextEditorProps {
@@ -40,6 +46,12 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
     const editor = useEditor({
         extensions: [
             StarterKit,
+            CodeBlockLowlight.configure({
+                lowlight,
+                HTMLAttributes: {
+                    class: 'bg-gray-100 border border-gray-200 rounded-lg p-4 font-mono text-sm my-2',
+                },
+            }),
             Image.configure({
                 HTMLAttributes: {
                     class: 'max-w-full h-auto rounded-lg',
@@ -164,6 +176,13 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
                     >
                         <Strikethrough className="w-4 h-4" />
                     </ToolbarButton>
+                    <ToolbarButton
+                        onClick={() => editor.chain().focus().toggleUnderline().run()}
+                        isActive={editor.isActive('underline')}
+                        title="Unterstrichen"
+                    >
+                        <UnderlineIcon className="w-4 h-4" />
+                    </ToolbarButton>
                 </div>
 
                 {/* Headings */}
@@ -208,11 +227,18 @@ const RichTextEditor: React.FC<RichTextEditorProps> = ({
                         <ListOrdered className="w-4 h-4" />
                     </ToolbarButton>
                     <ToolbarButton
-                        onClick={() => editor.chain().focus().toggleBlockquote().run()}
-                        isActive={editor.isActive('blockquote')}
-                        title="Zitat"
+                        onClick={() => editor.chain().focus().toggleCode().run()}
+                        isActive={editor.isActive('code')}
+                        title="Inline Code"
                     >
-                        <Quote className="w-4 h-4" />
+                        <Code className="w-4 h-4" />
+                    </ToolbarButton>
+                    <ToolbarButton
+                        onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+                        isActive={editor.isActive('codeBlock')}
+                        title="Code Block"
+                    >
+                        <FileCode className="w-4 h-4" />
                     </ToolbarButton>
                 </div>
 
