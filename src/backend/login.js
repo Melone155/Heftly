@@ -26,11 +26,13 @@ router.get('/', async (req, res) => {
             return res.status(404).json({ error: "INVALID_DATA" });
         }
 
+        console.log("user:", user);
+
         const userData = {
-            customerId: user.customerId,
+            customerId: user._id,
             password: user.password,
             role: user.role,
-            date: user.created_at,
+            date: user.createdAt,
         };
 
         const secretKey = crypto.createHash('sha256').update(Encrypt_SECRET).digest();
@@ -45,6 +47,10 @@ router.get('/', async (req, res) => {
         if (encrypt(password) !== userData.password) {
             return res.status(404).json({ error: "INVALID_DATA" });
         }
+
+        console.log("customerId:", userData.customerId);
+        console.log("role:", userData.role);
+        console.log("date:", userData.date);
 
         const token = jwt.sign(
             {
