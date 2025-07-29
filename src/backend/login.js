@@ -26,8 +26,6 @@ router.get('/', async (req, res) => {
             return res.status(404).json({ error: "INVALID_DATA" });
         }
 
-        console.log("user:", user);
-
         const userData = {
             customerId: user._id,
             password: user.password,
@@ -47,10 +45,6 @@ router.get('/', async (req, res) => {
         if (encrypt(password) !== userData.password) {
             return res.status(404).json({ error: "INVALID_DATA" });
         }
-
-        console.log("customerId:", userData.customerId);
-        console.log("role:", userData.role);
-        console.log("date:", userData.date);
 
         const token = jwt.sign(
             {
