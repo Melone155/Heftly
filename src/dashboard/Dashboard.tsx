@@ -5,11 +5,18 @@ import RichTextEditor from './RichTextEditor';
 import { format, startOfWeek, addWeeks } from 'date-fns';
 import { de } from 'date-fns/locale';
 import { getISOWeek } from 'date-fns';
+import {jwtDecode} from "jwt-decode";
 
 type WeekEntry = {
     kw: number;
     range: string;
 };
+
+interface MyTokenPayload {
+    customerId: string;
+    role: string;
+    date: string
+}
 
 const Dashboard: React.FC = () => {
     const navigate = useNavigate();
@@ -25,13 +32,22 @@ const Dashboard: React.FC = () => {
     const [months, setmonths] = useState<string[]>([]);
 
     useEffect(() => {
+        const token = localStorage.getItem("jwt");
+        if (!token){
+            navigate('/');
+            return;
+        }
+
+        const decoded = jwtDecode<MyTokenPayload>(token);
+        const date = decoded.date;
+        
         const newWeeks = getWeeksInMonth(year, month);
         setWeeks(newWeeks);
-
-        const azubiStart = "15.03.2022";
-        const months = getMonthsFromStartToNow(azubiStart);
+        
+        console.log(decoded);
+        const months = getMonthsFromStartToNow(date);
         setmonths(months);
-    }, [month, selectedMonth, year]);
+    }, [month, navigate, selectedMonth, year]);
 
     const handleLogout = () => {
         navigate('/');
