@@ -22,26 +22,53 @@ const Dashboard: React.FC = () => {
     const month = Number(monthStr);
     const year = Number(yearStr);
     const [weeks, setWeeks] = useState<WeekEntry[]>([]);
+    const [months, setmonths] = useState<string[]>([]);
 
     useEffect(() => {
         const newWeeks = getWeeksInMonth(year, month);
         setWeeks(newWeeks);
+
+        const azubiStart = "15.03.2022";
+        const months = getMonthsFromStartToNow(azubiStart);
+        setmonths(months);
     }, [month, selectedMonth, year]);
 
     const handleLogout = () => {
         navigate('/');
     };
 
-    const getMonthsOfYear = () => {
-        const currentYear = new Date().getFullYear();
+    function getMonthsFromStartToNow(startDateStr: string): string[] {
+        const [dayStr, monthStr, yearStr] = startDateStr.split(".");
+        const startDate = new Date(
+            Number(yearStr),
+            Number(monthStr) - 1,
+            Number(dayStr)
+        );
+
+        const now = new Date();
         const months: string[] = [];
 
-        for (let month = 1; month <= 12; month++) {
-            months.push(`${month}/${currentYear}`);
+        let currentYear = startDate.getFullYear();
+        let currentMonth = startDate.getMonth() + 1; // 1-basiert
+
+        const endYear = now.getFullYear();
+        const endMonth = now.getMonth() + 1;
+
+        while (
+            currentYear < endYear ||
+            (currentYear === endYear && currentMonth <= endMonth)
+            ) {
+            months.push(`${currentMonth}/${currentYear}`);
+
+            currentMonth++;
+            if (currentMonth > 12) {
+                currentMonth = 1;
+                currentYear++;
+            }
         }
 
         return months;
-    };
+    }
 
     function getWeeksInMonth(year: number, month: number) {
         const result = [];
@@ -102,18 +129,18 @@ const Dashboard: React.FC = () => {
                             <select
                                 value={selectedMonth}
                                 onChange={(e) => {
-                                    setSelectedMonth(e.target.value);
-                                    const newWeeks = getWeeksInMonth(year, month);
-                                    setWeeks(newWeeks);
-                                }}
+                                setSelectedMonth(e.target.value);
+                                const newWeeks = getWeeksInMonth(year, month);
+                                setWeeks(newWeeks);
+                            }}
                                 className="block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
-                            >
-                                {getMonthsOfYear().map((month) => (
+                                >
+                                {months.map((month) => (
                                     <option key={month} value={month}>
                                         {month}
                                     </option>
                                 ))}
-                            </select>
+                        </select>
                         </div>
                     </div>
                 </div>
